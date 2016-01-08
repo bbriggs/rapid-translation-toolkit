@@ -5,6 +5,9 @@
 [![Build Status](https://travis-ci.org/bbriggs/wycliffe-urbana-2015.svg?branch=development)](https://travis-ci.org/bbriggs/wycliffe-urbana-2015)
 # Wycliffe@Urbana15: #Hacktranslation
 
+#### Issue Status:
+[![Stories in Ready](https://badge.waffle.io/Wycliffe-USA/rapid-translation-toolkit.png?label=ready&title=Ready)](http://waffle.io/Wycliffe-USA/rapid-translation-toolkit)
+
 We aim to bring the power of natural language processing (NLP) to bear on the work of Bible translation.
 
 ## The problem
