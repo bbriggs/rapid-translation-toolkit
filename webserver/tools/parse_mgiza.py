@@ -1,7 +1,17 @@
+# parse_mgiza.py
+
+# Reads mgiza output and builds a mapping of words from source to target, providing counts
+# Currently does not add mgiza sentence score to the struct
+
 import re
 import sys
 import json
+import logging
+import tempfile
+
+#Modules from pip:
 import couchdb
+
 fname = 'sample_out'
 
 class Database(object):
@@ -32,11 +42,6 @@ class Database(object):
 def parse_alignment(alignment):
     raw_lines = alignment.split('\n')
     lines = remake_lines(raw_lines)
-
-#    print lines[0]
-#    print lines[1]
-#    print lines[2]
-
     # Score
     score = get_score(lines[0])
 
@@ -53,11 +58,12 @@ def parse_alignment(alignment):
     # Create mapping
     mapping = create_mapping(words_src, words_targ, indexes)
 
-    #print "\tScore:", score
-    #print "\tSource Words:", words_src
-    #print "\tTarget Words:", words_targ
-    #print "\tIndexes:", indexes
-    #print "\tMapping:", mapping
+    logging.debug('Score:, %s' % score) 
+    logging.debug('Source Words: %s' % words_src)
+    logging.debug('Target Words: %s' % words_targ)
+    logging.debug('Indexes: %s' % indexes)
+    logging.debug('Mapping: %s' % mapping)
+
     return mapping, score
 
 # Extracts the score from the line
@@ -146,22 +152,30 @@ def print_to_file(val, filename):
     with open(filename, 'w') as f:
         f.write(val)
 
+def insert_mappings(db, alignments):
+    db_replies = []
+    db_docs = []
+    for key in alignments.mapping:
+        tmp = {"type":"alignment","src":key,"maps":alignments.mapping[key]}
+        db_docs.append(tmp)
+    for doc in db.update(db_docs):
+        print(repr(doc))
 
-if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        raise Exception("Usage: parse_mgiza mgiza_file output_file")
+def couch_connect(db_name):
     couch = couchdb.Server()
     db = couch['alignments']
-    database = parse_output(sys.argv[1])
-    with open(sys.argv[2],'a') as f:
-        for key in database.mapping:
-            tmp = {"type":"alignment","src":key,"maps":database.mapping[key]}
-#            print tmp
-            json.dump(tmp,f)
-            f.write('\n')
-    with open(sys.argv[2],'r') as f:
-        results = []
-        for line in f:
-            jsonified = json.loads(line)
-            results.append(db.save(jsonified))
-        print "Inserted %s documents" % len(results)
+    return db
+
+def main(mgiza_output):
+    if len(sys.argv) < 2:
+        raise Exception("\tUsage: parse_mgiza mgiza_file")
+    db = couch_connect('alignments')
+    alignments = parse_output(mgiza_output)
+    reply = insert_mappings(db, alignments)
+    return reply
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        raise Exception("Usage: parse_mgiza mgiza_file")
+    print(main(sys.argv[1]))
+
