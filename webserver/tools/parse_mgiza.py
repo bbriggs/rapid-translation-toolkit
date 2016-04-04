@@ -152,11 +152,11 @@ def print_to_file(val, filename):
     with open(filename, 'w') as f:
         f.write(val)
 
-def insert_mappings(db, alignments):
+def insert_mappings(db, alignments,src_lang,tgt_lang):
     db_replies = []
     db_docs = []
     for key in alignments.mapping:
-        tmp = {"type":"alignment","src":key,"maps":alignments.mapping[key]}
+        tmp = {"src_lang": src_lang, "tgt_lang": tgt_lang, "type":"alignment","src":key,"maps":alignments.mapping[key]}
         db_docs.append(tmp)
     for doc in db.update(db_docs):
         print(repr(doc))
@@ -168,10 +168,12 @@ def couch_connect(db_name):
 
 def main(mgiza_output):
     if len(sys.argv) < 2:
-        raise Exception("\tUsage: parse_mgiza mgiza_file")
+        raise Exception("\tUsage: parse_mgiza mgiza_file src_lang tgt_lang")
+    src_lang = sys.argv[2]
+    tgt_lang = sys.argv[3]
     db = couch_connect('alignments')
     alignments = parse_output(mgiza_output)
-    reply = insert_mappings(db, alignments)
+    reply = insert_mappings(db, alignments,src_lang,tgt_lang)
     return reply
 
 if __name__ == '__main__':

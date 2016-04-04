@@ -1,4 +1,6 @@
-include ::couchdb
+class { '::couchdb':
+  bind_address => '0.0.0.0',
+}
 
 class { '::nodejs':
   manage_package_repo       => false,

@@ -98,10 +98,10 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   // set response code
   if ( res.statusCode === 200 && err.status )
-    res.status(err.status);
+      res.status(err.status);
   if ( res.statusCode === 200 )
     res.status(500);
-  
+
   // log error on appserver
   console.log( red + 'Route Stopped: ' + colorOff + req.method + ' - ' + req.url  + ' - ' + res.statusCode );
   console.log( err.stack );
@@ -109,7 +109,7 @@ app.use(function(err, req, res, next) {
   console.log( req.headers );
   console.log( red + 'Data: '  + colorOff);
   console.log( req.body || req.query );
-  
+
   // create error response object
   var errResponse = {
         status: res.statusCode,
@@ -119,7 +119,7 @@ app.use(function(err, req, res, next) {
     // include stacktrace if development
     errResponse.stack = err.stack;
   }
-  
+
   // format response based on Accepts header
   if ( ~req.headers.accept.indexOf('html') ) {
     errResponse.title = "Error";
